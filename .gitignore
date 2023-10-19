@@ -9,6 +9,10 @@ __pycache__/
 #Java class
 *.class
 
+#Data
+*.atf
+*.ATF
+*.txt
 
 # Distribution / packaging
 .Python
