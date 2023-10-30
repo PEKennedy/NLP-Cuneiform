@@ -2,72 +2,174 @@ import subprocess
 import argparse
 import re
 
-# Nuolenna seems to lose more info than needed:
-#- Start and end of word info
-# and it seems to interpret [...] as the circle character, where it appears to just mean unknown text
-
-#So this is my attempt to recreate Nuolenna in python, though it might not be necessary
+# This is my attempt to recreate Nuolenna in python, though it might not be necessary
 # Since this is a modified version of Nuolenna which uses something like GPL3, this script also needs to have the same license
 # I take it?
 
-#pseudo-code
-
-#Load sign_list.txt (pairs of ASCII ATF encoding, and the corresponding unicode character)
-#for each line
-#	isolate the ASCII and the unicode to their own strings
-#	trim whitespace
-#	tolower
-#	get rid of \. x X 	"change all combination signs to just signs following eac other"
-#	if line.len > 0: 
-#		add ASCII + sign to the map (dictionnary in python's case?)
-
 sign_map = {}
 
-def load_sign_list():
+def load_sign_list(ascii_debug=False):
 	f = open("sign_list.txt")
 	for line in f:
 		#we don't just use .split because some ASCII doesn't have a corresponding unicode char
-		ascii = re.sub("\t.*","",line).lower().strip()
-		sign = re.sub(".*\t","",line).replace("[Xx]","").replace("\\.","").strip()
+		ascii = re.sub(r"\t.*","",line).lower().strip()
+		sign = re.sub(r".*\t","",line) 
+		sign = re.sub("[Xx]","",sign)
+		sign = re.sub(r"\\.","",sign)
+		sign = sign.strip()
 		if len(ascii) > 0:
-			sign_map[ascii] = sign
+			if ascii_debug:
+				sign_map[ascii] = ascii + "(" + sign + ")"
+			else:
+				sign_map[ascii] = sign
 	f.close()
 	
-#Load the file to translate
-#for each line
-#	to lower case
-#	split at spaces
-#	for each word
-#		is it kind of like this?: 5(disz), that is, a number followed by a word in parenthesis
-#		This indicates in ATF that the word is duplicated, so we paste the corresponding character into our output x times
-
-#		remove $ signs, since they just indicate that the reading of a sign is uncertain, not the sign itself
-#		replace some other stuff
-
-#		for each syllable in a word (split word by space):
-#			remove annotation stuff (@ and ~ things)
-#			all numbers are replaced with "1" >>> we likely want to disable this by default, or at least experiment with it
-#			check if the syllable is in the sign map: print it
-#			else if it has (x or .) but not &:
-#				split by x and ., print the resulting subsyllables if they are in the sign map
-#			else if the character is euro?: print a couple spaces
-#		print new line
-
-def toUnicode(atfName,label,doc_markers,spaces,word_boundaries,removeNums):
+#TODO: Fix Regex
+#TODO: Fix repetition(sign) logic
+#TODO: make sure '-' is always the sign boundary, so that space is a word boundary
+def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #word_boundaries,
 	atf = open(atfName)
 	for line in atf:
 		#perhaps if the first char of a line is '&', leave/skip it, as its a doc boundary
-		for word in line.lower().split():
-			# replace #repetitions(sign) with signsignsignsign....
-			if re.search("^[1-90][1-90]*\\\(.*\\\)$",word):
-				sign = re.sub("^[1-90][1-90]*\\\(","",word)
-				sign = re.sub("\\\)$","",sign)
-				repetitions = 
+		# an improvement: handle the document boundaries and complete line annotations properly
+		if re.search("^&",line):
+			if doc_markers:
+				print("NEWDOC")
+			else:
+				print("\n",end='')
+			continue
+		if re.search("^[$#]",line):
+			print("\n",end='')
+			continue
+		#get rid of the line number (non-whitespace, then a period
+		line = re.sub("^[\S]*\.","",line)
+		
+		#There are 2 ATF conventions for characters: ASCII-ATF and Unicode-ATF,
+		# our sign list is in Unicode-ATF, so convert characters to it
+		line = re.sub("sz","š",line)
+		line = re.sub("SZ","Š",line)
+		line = re.sub("s,","ṣ",line)
+		line = re.sub("S,","Ṣ",line)
+		line = re.sub("t,","ṭ",line)
+		line = re.sub("T,","Ṭ",line)
+		line = re.sub("s'","ś",line)
+		line = re.sub("S'","Ś",line)
+		line = re.sub(r"\'","ʾ",line)
+		line = re.sub("h","ḫ",line)
+		line = re.sub("H","Ḫ",line)
+		line = re.sub("j","ŋ",line)
+		line = re.sub("J","Ŋ",line)
+		
+		#get rid of markers for logograms '_', damaged signs '#', and uncertain reading '?'
+		line = re.sub("[#_?]","",line)
+		
+		
+
+		
+		
+		for word in line.lower().strip().split():
+			#Convert subscripts to Unicode-ATF
+			#regex backref doesn't seem to work, so just brute force these substitutions 
+			word = re.sub("0(?=-|$)","₀",word)
+			word = re.sub("1(?=-|$)","₁",word)
+			word = re.sub("2(?=-|$)","₂",word)
+			word = re.sub("3(?=-|$)","₃",word)
+			word = re.sub("4(?=-|$)","₄",word)
+			word = re.sub("5(?=-|$)","₅",word)
+			word = re.sub("6(?=-|$)","₆",word)
+			word = re.sub("7(?=-|$)","₇",word)
+			word = re.sub("8(?=-|$)","₈",word)
+			word = re.sub("9(?=-|$)","₉",word)
+			word = re.sub("[Xx](?=-|$)","ₓ",word)
+			"""y = re.search(r'([0-9])$',word)
+			if y:
+				#print("XXXXXX")
+				print(y)"""
+			
+			# quantities are expressed as #(type), represent this as typetypetypetype....
+			if re.search("^[0-9]+\(.*\)$",word):
+				sign = re.sub("^[0-9]+\(","",word)
+				sign = re.sub("\)$","",sign)
+				number = int(re.sub("\(.*$","",word))
 				word = sign
-				
+				while number > 1:
+					word = word + "-" + sign
+					number -= 1
+			# '$' == reading is uncertain, this annotation is unneeded
+			word = re.sub("[\$]","",word)
+			
+			# replace combination characters with their own sign
+			#TODO: Are these right or did Nuolenna forget something like the OR operator?
+			word = re.sub("gad\&gad\.gar\&gar","kinda",word)
+			word = re.sub("bu\&bu\.ab","sirsir",word)
+			word = re.sub("tur\&tur\.za\&za","zizna",word)
+			#escape the . in \.gar
+			word = re.sub("še\&še\.tab\&tab\.gar\&gar","garadin₃",word)
 	
+			# subscript handling
+			word = re.sub("(.*[\.-])([^\.-]*ₓ\()([^\)]*)(\))(.*)",r"\1\3\5",word)
+			word = re.sub("(.*ₓ\()([^\)]*)(\))(.*)",r"\2\4",word)
+			
+			# remove some precise reading anotations...
+			word = re.sub("(.*[^\|\&])(\(\|[^\|]*\|\))(.*)",r"\1\3",word)
+			word = re.sub("(.*\|[^\|]*\|)(\(.*\))(.*)",r"\1\3",word)
+			word = re.sub("(.*[\.-][^\.-]*[^\|\&])(\(.*\))(.*)",r"\1\3",word)
+			word = re.sub("(.*[^\|\&])(\([^\(\)]*\))(.*)",r"\1\3",word)	
+	
+			#more nasty regexes, make sure '-' remains the syllable separator
+			# not space, as we want space to be a word boundary
+			
+			word = re.sub("\|","",word)
+			#TODO: check this works
+			#Replace separator in . separated words (which are in () )
+			if not re.search(".*\(.*\..*\).*",word):
+				word = re.sub("\.","-",word)
+			
+			#get rid of phoenetic complements
+			word = re.sub("\{\+","-",word)
+			#separate joined characters
+			word = re.sub("\+","-",word)
+			word = re.sub("[{}]","-",word)
+			
+			word = re.sub("lagaš ","šir bur la ",word)
+			
+			word = re.sub("  *"," ",word)
+			
+			for gram in word.split("-"):
+				#Remove modifier notations ("reflected", "slanted", "variant", etc., they don't matter to us)
+				gram = re.sub("[@~].*","",gram)
+								
+				#number replacement
+				if reduceNums:
+					gram = re.sub("n?[0-9]+","n01",gram)
+					gram = re.sub("1\/2\(iku\)","",gram)
+				#get rid of '(' and ')'
+				gram = re.sub("[\(\)]","",gram)
+				
+				if gram in sign_map.keys():
+					print(sign_map[gram],end='')
+				
+				elif (("x" in gram or "." in gram) and "&" not in gram):
+					gram = re.sub("[\.]","x",gram)
+					subgrams = gram.split("x")
+					for subgram in subgrams:
+						if subgram in sign_map.keys():
+							print(sign_map[subgram],end='')
+				
+				#dont know what this is for, and I don't see the character in the ORACC documentation
+				elif gram == "€":
+					print("  ",end='')
+				elif ascii_debug:
+					print("[" + gram + "]",end='')
+				
+			#Add spaces as word boundaries if that setting is present
+			if spaces:
+				print(" ",end='')
+		print("\n",end='')
 	atf.close()
 	
+#try this for debugging: python nuolenpy.py Medical_10.atf med -a -s -d -n > uni_test.txt
+#this for final: python nuolenpy.py Medical_10.atf med -s -d > uni_test.txt
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
 		prog='nuolenpy',
@@ -82,24 +184,26 @@ if __name__ == "__main__":
 		help='ATF can store multiple documents per file, using this option preserves the document boundaries')
 	parser.add_argument('-s','--spaces', action='store_true',
 		help="keep spaces between words")
-	parser.add_argument('-b','--wordSEchars',action='store_true',
-		help="adds \'<\' and \'>\' to the start and end of words, as this can help n-gram models")
-	parser.add_argument('-n','--removeNums',action='store_true',
+	#parser.add_argument('-b','--wordSEchars',action='store_true',
+	#	help="adds \'<\' and \'>\' to the start and end of words, as this can help n-gram models")
+	parser.add_argument('-n','--reduceNums',action='store_true',
 		help="Reduces all numbers in the text to \'1\'")
+	parser.add_argument('-a','--asciiDebug',action='store_true',
+		help="instead of printing cuneiform's sign representation, print a combo ascii(sign) representation")
 	# potential future improvements: add lemmatization as an option
 	# something like this: parser.add_argument('-l','--lemmatizer',choices=[None,'a','b'],
 		#help="specify a lemmatizer to use on the words")
 		
 	args = parser.parse_args()
 
-	load_sign_list()
-	toUnicode(args.atfFile,args.label,args.docMarkers,args.spaces,args.wordSEchars,args.removeNums)
+	load_sign_list(args.asciiDebug)
+	toUnicode(args.atfFile,args.label,args.docMarkers,args.spaces,args.reduceNums, args.asciiDebug) #args.wordSEchars,
 
 #Some changes we want to make
 # >> make replacing numbers optional
 # >> leave in start/end of document markers (by default)
 # >> leave in spaces between words optionally (by default)
-# >> add start and end of word characters '<' and '>' optionally
+# >> add start and end of word characters '<' and '>' optionally >>> nope, just do that in the model, spaces is fine
 # >> add in genre label to the document
 # ** splitting into dev,train,test should be a separate script that interleaves all the atf texts by category
 
