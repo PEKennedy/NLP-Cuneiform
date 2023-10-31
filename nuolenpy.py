@@ -68,7 +68,7 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 		#line = re.sub("\}(?! )","",line)
 		#line = re.sub("(?!\w)\{","-",line)
 		#line = re.sub("(?! )\{","",line)
-		line = re.sub("[\{\}]","-",line)
+		line = re.sub("[\{\}\+]","-",line) #TODO: check that having \+ in here is good
 		line = re.sub("( -)|(- )"," ",line) #TODO: maybe space should be \s
 		
 		line = re.sub("(?![\-\s])x(?![\-\s])"," ",line) #get rid of 'x's which indicate unknowns
@@ -77,27 +77,30 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 		# discard the '!' and incorrect sign
 		line = re.sub("!(\(\w+\))?","",line)
 		
+		#Convert subscripts to Unicode-ATF
+		#regex backref doesn't seem to work, so just brute force these substitutions 
+		#it'll already have converted some chars to subscript, so they are no longer digits
+		line = re.sub(r"0(?=[\d₀-₉]*(-|\s))","₀",line)
+		line = re.sub(r"1(?=[\d₀-₉]*(-|\s))","₁",line)
+		line = re.sub(r"2(?=[\d₀-₉]*(-|\s))","₂",line)
+		line = re.sub(r"3(?=[\d₀-₉]*(-|\s))","₃",line)
+		line = re.sub(r"4(?=[\d₀-₉]*(-|\s))","₄",line)
+		line = re.sub(r"5(?=[\d₀-₉]*(-|\s))","₅",line)		
+		line = re.sub(r"6(?=[\d₀-₉]*(-|\s))","₆",line)
+		line = re.sub(r"7(?=[\d₀-₉]*(-|\s))","₇",line)
+		line = re.sub(r"8(?=[\d₀-₉]*(-|\s))","₈",line)
+		line = re.sub(r"9(?=[\d₀-₉]*(-|\s))","₉",line)
 		
 		for word in line.lower().strip().split():
+			
+			
 			#Convert subscripts to Unicode-ATF
-			#regex backref doesn't seem to work, so just brute force these substitutions 
-			word = re.sub("0(?=-|$)","₀",word)
-			word = re.sub("1(?=-|$)","₁",word)
-			word = re.sub("2(?=-|$)","₂",word)
-			word = re.sub("3(?=-|$)","₃",word)
-			word = re.sub("4(?=-|$)","₄",word)
-			word = re.sub("5(?=-|$)","₅",word)
-			word = re.sub("6(?=-|$)","₆",word)
-			word = re.sub("7(?=-|$)","₇",word)
-			word = re.sub("8(?=-|$)","₈",word)
-			word = re.sub("9(?=-|$)","₉",word)
 			word = re.sub("[Xx](?=-|$)","ₓ",word)
 			"""y = re.search(r'([0-9])$',word)
 			if y:
 				#print("XXXXXX")
 				print(y)"""
 				
-			#TODO: How is na4 processed correctly on line 9 but not line 7
 			
 			# quantities are expressed as #(type), represent this as typetypetypetype....
 			if re.search("^[0-9]+\(.*\)$",word):
@@ -119,11 +122,11 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 			#escape the . in \.gar
 			word = re.sub("še\&še\.tab\&tab\.gar\&gar","garadin₃",word)
 	
-			# subscript handling
+			# subscript handling TODO: Do these regex capture group references work?
 			word = re.sub("(.*[\.-])([^\.-]*ₓ\()([^\)]*)(\))(.*)",r"\1\3\5",word)
 			word = re.sub("(.*ₓ\()([^\)]*)(\))(.*)",r"\2\4",word)
 			
-			# remove some precise reading anotations...
+			# remove some precise reading anotations... TODO: check this works, or is even needed after my additions earlier
 			word = re.sub("(.*[^\|\&])(\(\|[^\|]*\|\))(.*)",r"\1\3",word)
 			word = re.sub("(.*\|[^\|]*\|)(\(.*\))(.*)",r"\1\3",word)
 			word = re.sub("(.*[\.-][^\.-]*[^\|\&])(\(.*\))(.*)",r"\1\3",word)
@@ -173,7 +176,7 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 				#TODO: dont know what this is for, and I don't see the character in the ORACC documentation
 				elif gram == "€":
 					print("  ",end='')
-				elif ascii_debug:
+				elif ascii_debug and gram != "ₓ" and gram != "":
 					print("[" + gram + "]",end='')
 				
 			#Add spaces as word boundaries if that setting is present
