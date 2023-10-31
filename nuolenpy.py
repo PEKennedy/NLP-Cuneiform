@@ -30,18 +30,16 @@ def load_sign_list(ascii_debug=False):
 def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #word_boundaries,
 	atf = open(atfName)
 	for line in atf:
-		#perhaps if the first char of a line is '&', leave/skip it, as its a doc boundary
-		# an improvement: handle the document boundaries and complete line annotations properly
-		if re.search("^&",line):
+		if re.search("^&",line): #& indicates a new document
 			if doc_markers:
-				print("NEWDOC")
+				print("NEWDOC " + label)
 			else:
 				print("\n",end='')
 			continue
-		if re.search("^[$#]",line):
+		if re.search("^[$#@]",line): #discard annotation lines
 			print("\n",end='')
 			continue
-		#get rid of the line number (non-whitespace, then a period
+		#get rid of the line number (non-whitespace, then a period)
 		line = re.sub("^[\S]*\.","",line)
 		
 		#There are 2 ATF conventions for characters: ASCII-ATF and Unicode-ATF,
@@ -55,16 +53,29 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 		line = re.sub("s'","ś",line)
 		line = re.sub("S'","Ś",line)
 		line = re.sub(r"\'","ʾ",line)
-		line = re.sub("h","ḫ",line)
-		line = re.sub("H","Ḫ",line)
+		#line = re.sub("h","ḫ",line) #sign list doesn't use the funny h
+		#line = re.sub("H","Ḫ",line)
 		line = re.sub("j","ŋ",line)
 		line = re.sub("J","Ŋ",line)
 		
 		#get rid of markers for logograms '_', damaged signs '#', and uncertain reading '?'
-		line = re.sub("[#_?]","",line)
+		#line = re.sub("[#_?]","",line)
+		line = re.sub("[#_?\[\]]","",line)
+		line = re.sub("\.\.\.","",line)
 		
+		#phonetic complement
+		#line = re.sub("\}(?!\w)","-",line)
+		#line = re.sub("\}(?! )","",line)
+		#line = re.sub("(?!\w)\{","-",line)
+		#line = re.sub("(?! )\{","",line)
+		line = re.sub("[\{\}]","-",line)
+		line = re.sub("( -)|(- )"," ",line) #TODO: maybe space should be \s
 		
-
+		line = re.sub("(?![\-\s])x(?![\-\s])"," ",line) #get rid of 'x's which indicate unknowns
+		
+		# "blabla!" indicates that the word was corrected by the transcriber to "blabla", this can be followed by "(blavla)" to indicate original
+		# discard the '!' and incorrect sign
+		line = re.sub("!(\(\w+\))?","",line)
 		
 		
 		for word in line.lower().strip().split():
@@ -85,6 +96,8 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 			if y:
 				#print("XXXXXX")
 				print(y)"""
+				
+			#TODO: How is na4 processed correctly on line 9 but not line 7
 			
 			# quantities are expressed as #(type), represent this as typetypetypetype....
 			if re.search("^[0-9]+\(.*\)$",word):
@@ -131,8 +144,9 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 			word = re.sub("\+","-",word)
 			word = re.sub("[{}]","-",word)
 			
-			word = re.sub("lagaš ","šir bur la ",word)
+			word = re.sub("lagaš","šir-bur-la",word)
 			
+			#TODO: what is this for?
 			word = re.sub("  *"," ",word)
 			
 			for gram in word.split("-"):
@@ -141,7 +155,7 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 								
 				#number replacement
 				if reduceNums:
-					gram = re.sub("n?[0-9]+","n01",gram)
+					gram = re.sub("n?[0-9]+","n01",gram) #TODO: somehow this is overwriting {na4} with nan01
 					gram = re.sub("1\/2\(iku\)","",gram)
 				#get rid of '(' and ')'
 				gram = re.sub("[\(\)]","",gram)
@@ -156,7 +170,7 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 						if subgram in sign_map.keys():
 							print(sign_map[subgram],end='')
 				
-				#dont know what this is for, and I don't see the character in the ORACC documentation
+				#TODO: dont know what this is for, and I don't see the character in the ORACC documentation
 				elif gram == "€":
 					print("  ",end='')
 				elif ascii_debug:
