@@ -1,15 +1,18 @@
 import subprocess
 import argparse
 import re
+import sys
 
 # This is my attempt to recreate Nuolenna in python, though it might not be necessary
 # Since this is a modified version of Nuolenna which uses something like GPL3, this script also needs to have the same license
 # I take it?
 
+sys.stdout.reconfigure(encoding='utf-16') #required on windows machines
+
 sign_map = {}
 
 def load_sign_list(ascii_debug=False):
-	f = open("sign_list.txt")
+	f = open("sign_list.txt",encoding="utf-8")
 	for line in f:
 		#we don't just use .split because some ASCII doesn't have a corresponding unicode char
 		ascii = re.sub(r"\t.*","",line).lower().strip()
@@ -28,7 +31,7 @@ def load_sign_list(ascii_debug=False):
 #TODO: Fix repetition(sign) logic
 #TODO: make sure '-' is always the sign boundary, so that space is a word boundary
 def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #word_boundaries,
-	atf = open(atfName)
+	atf = open(atfName,encoding="utf-8")
 	for line in atf:
 		if re.search("^&",line): #& indicates a new document
 			if doc_markers:
