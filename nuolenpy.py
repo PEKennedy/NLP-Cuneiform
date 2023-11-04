@@ -58,7 +58,7 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 		line = re.sub("j","ŋ",line)
 		line = re.sub("J","Ŋ",line)
 		
-		#get rid of markers for logograms '_', damaged signs '#', and uncertain reading '?'
+		#get rid of markers for logograms '_', damaged signs '#', , and uncertain reading '?'
 		#line = re.sub("[#_?]","",line)
 		line = re.sub("[#_?\[\]]","",line)
 		line = re.sub("\.\.\.","",line)
@@ -68,7 +68,8 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 		#line = re.sub("\}(?! )","",line)
 		#line = re.sub("(?!\w)\{","-",line)
 		#line = re.sub("(?! )\{","",line)
-		line = re.sub("[\{\}\+]","-",line) #TODO: check that having \+ in here is good
+		#TODO: Handle implied '<'&'>'
+		line = re.sub("[\{\}\+<>]","-",line) #TODO: check that having \+ in here is good
 		line = re.sub("( -)|(- )"," ",line) #TODO: maybe space should be \s
 		
 		line = re.sub("(?![\-\s])x(?![\-\s])"," ",line) #get rid of 'x's which indicate unknowns
@@ -91,16 +92,45 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 		line = re.sub(r"8(?=[\d₀-₉]*(-|\s))","₈",line)
 		line = re.sub(r"9(?=[\d₀-₉]*(-|\s))","₉",line)
 		
-		for word in line.lower().strip().split():
+		#TODO: Handle compound graphemes (mostly by removing the information)
+		#compound_repeats = re.findall(r"\|(\d+)[x×](\S)\|")
+		#for repeat in compound_repeats:
+		
+		#TODO: make sure we still have nice gram boundaries (space btw words, - btw grams)
+		#\|\(?([^\s\|\dx×.+&%@\(\)]+)\)?[x×.+&%@]\(?([^\s\|\)\(]+)\)?\|
+		#\|\(?([^\s\|\d]+)\)?[x×.+&%@]\(?([^\s\|]+)\)?\|
+		line = re.sub(r"\|\(?([^\s\|\dx×.+&%@\(\)]+)\)?[x×.+&%@]\(?([^\s\|\)\(]+)\)?\|",r"-\1-\2-",line)
+		#TODO: need to handle multiplication x, and such before the subscript case
+		
+		#captures digits in \1, gram in \2
+		#\|\(?([\d]+)\)?[x×]\(?([^\s\|\)\(]+)\)?\|
+		
+		#for pair in repeats:
+		#	num = int(pair[0])
+		#	temp = ""
+		#	for x in range(num):
+		#		temp += pair[1]+"-"
 			
+		for word in line.lower().strip().split():	
 			
-			#Convert subscripts to Unicode-ATF
+			#Convert x subscripts to Unicode-ATF
 			word = re.sub("[Xx](?=-|$)","ₓ",word)
 			"""y = re.search(r'([0-9])$',word)
 			if y:
 				#print("XXXXXX")
 				print(y)"""
-				
+			
+			#if we see a repetition style compound word ie. |#xtype|, represent as typetypetypetype
+			compound = re.search(r"\|\(?([\d]+)\)?[x×]\(?([^\s\|\)\(]+)\)?\|",line)
+			if compound:
+				#word = ""
+				#print(compound)
+				number = int(compound.groups()[0])
+				sign = compound.groups()[1]
+				replacement = sign.lower()
+				for x in range(number-1):
+					replacement += "-" + sign.lower()
+				word = re.sub(r"\|\(?([\d]+)\)?[x×]\(?([^\s\|\)\(]+)\)?\|",replacement,word)
 			
 			# quantities are expressed as #(type), represent this as typetypetypetype....
 			if re.search("^[0-9]+\(.*\)$",word):
