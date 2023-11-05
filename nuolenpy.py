@@ -42,9 +42,11 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 		if re.search("^[$#@]",line): #discard annotation lines
 			print("\n",end='')
 			continue
+
 		#get rid of the line number (non-whitespace, then a period)
 		line = re.sub("^[\S]*\.","",line)
 		
+
 		#There are 2 ATF conventions for characters: ASCII-ATF and Unicode-ATF,
 		# our sign list is in Unicode-ATF, so convert characters to it
 		line = re.sub("sz","š",line)
@@ -100,9 +102,11 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 		#for repeat in compound_repeats:
 		
 		#TODO: make sure we still have nice gram boundaries (space btw words, - btw grams)
+		#TODO: probably still want to replace compounds when its a contains, otherwise,
+		#just use the sign lookup
 		#\|\(?([^\s\|\dx×.+&%@\(\)]+)\)?[x×.+&%@]\(?([^\s\|\)\(]+)\)?\|
 		#\|\(?([^\s\|\d]+)\)?[x×.+&%@]\(?([^\s\|]+)\)?\|
-		line = re.sub(r"\|\(?([^\s\|\dx×.+&%@\(\)]+)\)?[x×.+&%@]\(?([^\s\|\)\(]+)\)?\|",r"-\1-\2-",line)
+		#line = re.sub(r"\|\(?([^\s\|\dx×.+&%@\(\)]+)\)?[x×.+&%@]\(?([^\s\|\)\(]+)\)?\|",r"-\1-\2-",line)
 		#TODO: need to handle multiplication x, and such before the subscript case
 		
 		#captures digits in \1, gram in \2
@@ -115,16 +119,11 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 		#		temp += pair[1]+"-"
 			
 		for word in line.lower().strip().split():	
-			
 			#Convert x subscripts to Unicode-ATF
 			word = re.sub("[Xx](?=-|$)","ₓ",word)
-			"""y = re.search(r'([0-9])$',word)
-			if y:
-				#print("XXXXXX")
-				print(y)"""
-			
+
 			#if we see a repetition style compound word ie. |#xtype|, represent as typetypetypetype
-			compound = re.search(r"\|\(?([\d]+)\)?[x×]\(?([^\s\|\)\(]+)\)?\|",line)
+			compound = re.search(r"\(?([\d]+)\)?[x×]\(?([^\s\|\)\(]+)\)?",line)
 			if compound:
 				#word = ""
 				#print(compound)
@@ -135,6 +134,9 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 					replacement += "-" + sign.lower()
 				word = re.sub(r"\|\(?([\d]+)\)?[x×]\(?([^\s\|\)\(]+)\)?\|",replacement,word)
 			
+			#handle 1 sign contained in the other
+			word = re.sub(r"(\S)[x×](\S)",r"\1-\2",word)
+
 			# quantities are expressed as #(type), represent this as typetypetypetype....
 			if re.search("^[0-9]+\(.*\)$",word):
 				sign = re.sub("^[0-9]+\(","",word)
@@ -149,30 +151,31 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 			
 			# replace combination characters with their own sign
 			#TODO: Are these right or did Nuolenna forget something like the OR operator?
-			word = re.sub("gad\&gad\.gar\&gar","kinda",word)
-			word = re.sub("bu\&bu\.ab","sirsir",word)
-			word = re.sub("tur\&tur\.za\&za","zizna",word)
+			#***no, but they're in the sign list, and so probably aren't needed
+			#word = re.sub("gad\&gad\.gar\&gar","kinda",word)
+			#word = re.sub("bu\&bu\.ab","sirsir",word)
+			#word = re.sub("tur\&tur\.za\&za","zizna",word)
 			#escape the . in \.gar
-			word = re.sub("še\&še\.tab\&tab\.gar\&gar","garadin₃",word)
+			#word = re.sub("še\&še\.tab\&tab\.gar\&gar","garadin₃",word)
 	
 			# subscript handling TODO: Do these regex capture group references work?
-			word = re.sub("(.*[\.-])([^\.-]*ₓ\()([^\)]*)(\))(.*)",r"\1\3\5",word)
-			word = re.sub("(.*ₓ\()([^\)]*)(\))(.*)",r"\2\4",word)
+			#word = re.sub("(.*[\.-])([^\.-]*ₓ\()([^\)]*)(\))(.*)",r"\1\3\5",word)
+			#word = re.sub("(.*ₓ\()([^\)]*)(\))(.*)",r"\2\4",word)
 			
 			# remove some precise reading anotations... TODO: check this works, or is even needed after my additions earlier
-			word = re.sub("(.*[^\|\&])(\(\|[^\|]*\|\))(.*)",r"\1\3",word)
-			word = re.sub("(.*\|[^\|]*\|)(\(.*\))(.*)",r"\1\3",word)
-			word = re.sub("(.*[\.-][^\.-]*[^\|\&])(\(.*\))(.*)",r"\1\3",word)
-			word = re.sub("(.*[^\|\&])(\([^\(\)]*\))(.*)",r"\1\3",word)	
+			#word = re.sub("(.*[^\|\&])(\(\|[^\|]*\|\))(.*)",r"\1\3",word)
+			#word = re.sub("(.*\|[^\|]*\|)(\(.*\))(.*)",r"\1\3",word)
+			#word = re.sub("(.*[\.-][^\.-]*[^\|\&])(\(.*\))(.*)",r"\1\3",word)
+			#word = re.sub("(.*[^\|\&])(\([^\(\)]*\))(.*)",r"\1\3",word)	
 	
 			#more nasty regexes, make sure '-' remains the syllable separator
 			# not space, as we want space to be a word boundary
 			
-			word = re.sub("\|","",word)
+			#word = re.sub("\|","",word)
 			#TODO: check this works
 			#Replace separator in . separated words (which are in () )
-			if not re.search(".*\(.*\..*\).*",word):
-				word = re.sub("\.","-",word)
+			#if not re.search(".*\(.*\..*\).*",word):
+			#	word = re.sub("\.","-",word)
 			
 			#get rid of phoenetic complements
 			word = re.sub("\{\+","-",word)
@@ -180,7 +183,7 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 			word = re.sub("\+","-",word)
 			word = re.sub("[{}]","-",word)
 			
-			word = re.sub("lagaš","šir-bur-la",word)
+			#word = re.sub("lagaš","šir-bur-la",word)
 			
 			#TODO: what is this for?
 			word = re.sub("  *"," ",word)
@@ -198,7 +201,6 @@ def toUnicode(atfName,label,doc_markers,spaces,reduceNums,ascii_debug=False): #w
 				
 				if gram in sign_map.keys():
 					print(sign_map[gram],end='')
-				
 				elif (("x" in gram or "." in gram) and "&" not in gram):
 					gram = re.sub("[\.]","x",gram)
 					subgrams = gram.split("x")

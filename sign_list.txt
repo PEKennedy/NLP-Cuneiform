@@ -5188,7 +5188,8 @@ mulu	𒀯
 mulugₓ	𒋆
 mulu₄	𒃷𒁍
 mulu₄-bu	𒃷𒁍
-mulxab₂ 𒀯𒀖	mulab₂ 𒀯𒀖
+mulxab₂ 𒀯𒀖	
+mulab₂ 𒀯𒀖
 mul₂	𒋼
 mul₃	𒄮
 mul₄	𒌌
