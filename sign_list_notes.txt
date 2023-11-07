@@ -1,0 +1,25 @@
+Added these to the sign list
+nág 𒊩
+nag₂    𒊩
+according to https://www.quora.com/What-does-this-symbol-mean-in-cuneiform (scroll down to "related")
+Couldn't find any of the other signs, though shar seems like its probably out there 
+enenu seems to be a deity name, but no sign for some reason.
+
+
+Categories with roughly 1k+ transliterated samples (kept on CDLI number for sort options):
+Administrative (100k) 
+https://cdli.mpiwg-berlin.mpg.de/search?genre=Administrative&f%5Batf_transliteration%5D%5B%5D=With
+Business Contracts (1k) >>> part of legal
+https://cdli.mpiwg-berlin.mpg.de/search?genre=Business+%2F+Contracts&f%5Batf_transliteration%5D%5B%5D=With
+Legal (5k) *excluding Business contracts
+https://cdli.mpiwg-berlin.mpg.de/search?genre=Legal&f%5Bgenre%5D%5B%5D=Legal&f%5Bgenre%5D%5B%5D=Legal+%3E+Family+%3E+Divorce+Documents&f%5Bgenre%5D%5B%5D=Legal+%3E+Family+%3E+Inheritance+Documents&f%5Bgenre%5D%5B%5D=Legal+%3E+Family+%3E+Marriage+Documents&f%5Bgenre%5D%5B%5D=Legal+%3E+Judicial&f%5Bgenre%5D%5B%5D=Legal+%3E+Judicial+%3E+Oaths&f%5Bgenre%5D%5B%5D=Legal+%3E+Judicial+%3E+Verdicts&f%5Batf_transliteration%5D%5B%5D=With
+Letter (5k)
+https://cdli.mpiwg-berlin.mpg.de/search?genre=Letter&f%5Batf_transliteration%5D%5B%5D=With
+Lexical (2.5k)
+https://cdli.mpiwg-berlin.mpg.de/search?genre=Lexical&f%5Batf_transliteration%5D%5B%5D=With
+Literary (2k)
+https://cdli.mpiwg-berlin.mpg.de/search?genre=Literary&f%5Batf_transliteration%5D%5B%5D=With
+Medical (850)
+https://cdli.mpiwg-berlin.mpg.de/search?genre=Medical&f%5Batf_transliteration%5D%5B%5D=With
+Official or display (12k)
+https://cdli.mpiwg-berlin.mpg.de/search?genre=Official+or+display&f%5Batf_transliteration%5D%5B%5D=With
