@@ -32,8 +32,28 @@ A pre-generated dataset is provided under dataset/Model.zip, but perhaps you wan
 5. You have now generated your own Cuneiform dataset!
 
 ## Nuolenpy.py code
-### thing
+### Layout
+#### def load\_sign\_list(ascii_debug=False)
+- Loads the ascii and unicode representation pairs from sign_list.txt
+#### def toUnicode(atfName,label,doc\_markers,spaces,ascii\_debug=False)
+- Converts to ATF transliteration files to a  unicode representation of the cuneiform
+#### main
+- Collects user parameters and runs the program
 ### Limitations and potential improvement
+ Known issues:
+- incomplete sign list (no proto cuneiform among other missing word)
+ - \_kun4!(|ID+LU|)\_ misses ID and LU
+ - |šu₂.3xan| will make the 3 into a subscript
+- some repetitions will be off due to preceding characters ex "ZUTA651xKA" might give 51 ka characters
+- More examples of signs not in the sign list:
+[biṭ₂], [enuru],[sila₂],[shar],[kamad],[šeriš]
+
 ## gen_datasets.py code
-### thing
+### Layout
+#### def parse\_file(file,trainData,trainLabels,devData,devLabels,testData,testLabels)
+Finds the label of the documents in a /Unicode file, and splits the files by "NEWDOC". writes the documents to one of the file descriptor passed to it by the main process
+#### main
+- Opens all the files used in the final dataset, and every file in the /Unicode folder and distribute the documents to form the dataset.
 ### Limitations and potential improvement
+- This script requires that the .data.txt and the .label.txt files be already created.
+- Only the first label in a unicode file matters, it is assumed that all following labels would be the same. This assumption holds for the current version of nuolenpy.py
