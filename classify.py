@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import sys
 
 def read_data(file_path):
     with open(file_path, 'r', encoding='utf-16') as file:
@@ -25,9 +26,14 @@ def predict_and_save_labels(model, preprocessed_test_data, label_mapping, output
 
 def main():
     # Define file paths
-    test_data_path = 'dataset/Model/Model/test.data.txt'
-    model_path = 'modelworks'
-    output_file_path = 'RNN_predictions.txt'
+    test_data_path = 'dataset/Model/test.data.txt' #Model/
+
+    if len(sys.argv) != 3:
+        print("Specify the correct number of parameters. See description in code")
+        sys.exit(1)
+    
+    model_path = sys.argv[1] #'modelworks' #'RNNmodel'
+    output_file_path = sys.argv[2] #'RNN_predictions.txt'
 
     # Read test data
     test_data = read_data(test_data_path)

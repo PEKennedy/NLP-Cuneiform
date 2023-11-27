@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import sys
 
 def read_data(file_path):
     with open(file_path, 'r', encoding='utf-16') as file:
@@ -53,7 +54,12 @@ def main():
     train_label_path = 'dataset/Model/Model/train.label.txt'
     dev_data_path = 'dataset/Model/Model/dev.data.txt'
     dev_label_path = 'dataset/Model/Model/dev.label.txt'
-    output_model_path = 'RNNmodel'
+
+    if len(sys.argv) != 2:
+        print("Specify the correct number of parameters. See description in code")
+        sys.exit(1)
+
+    output_model_path = sys.argv[1] #'RNNmodel'
 
     # Define label mapping
     label_mapping = {'ADMIN': 0, 'CONTRACT': 1, 'LEGAL': 2, 'LETTER': 3, 'LEXICAL': 4, 'LITERARY': 5, 'MEDICAL': 6, 'OFFICIAL': 7}
