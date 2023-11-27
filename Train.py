@@ -1,26 +1,33 @@
 import tensorflow as tf
 import numpy as np
+import tensorflow_hub as hub
 
+# Reads data from txt file splitting by occurence of NEWDOC
 def read_data(file_path):
     with open(file_path, 'r', encoding='utf-16') as file:
         data = file.read().split('NEWDOC')[1:]
     return data
 
+# Reads labels from txt file splitting by newline, then maps labels to numeric values to be predicted
 def read_labels(file_path, label_mapping):
     with open(file_path, 'r', encoding='utf-16') as file:
         labels = file.read().split('\n')
     return np.array([label_mapping[label] for label in labels if label in label_mapping])
 
+# Combines data and labels to make a tf dataset, then shuffles for training
 def create_tf_dataset(data, labels, batch_size=32, shuffle_buffer_size=10000):
     dataset = tf.data.Dataset.from_tensor_slices((data, labels))
     dataset = dataset.shuffle(shuffle_buffer_size).batch(batch_size)
     return dataset
 
-def create_encoder(train_dataset, max_tokens=10000, output_sequence_length=250):
+# Creates encoder used to tokenize data and maps vocabulary to vector
+def create_encoder(train_dataset, max_tokens=20000, output_sequence_length=250):
     encoder = tf.keras.layers.TextVectorization(max_tokens=max_tokens, output_mode='int', output_sequence_length=output_sequence_length)
     encoder.adapt(train_dataset.map(lambda text, _: tf.strings.lower(text)))
     return encoder
 
+
+# Builds the model with spcified labels
 def create_model(encoder):
     model = tf.keras.Sequential([
         encoder,
@@ -28,17 +35,18 @@ def create_model(encoder):
         tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64, return_sequences=True)),
         tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32)),
         tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(8, activation='softmax')
+        tf.keras.layers.Dense(8, activation='softmax') 
     ])
     return model
 
-def train_model(model, train_dataset, validation_dataset=None):
+# Trains model on train_dataset and returns trained model
+def train_model(model, train_dataset, validation_dataset):
     model.compile(
         loss=tf.keras.losses.SparseCategoricalCrossentropy(),
         optimizer=tf.keras.optimizers.Adam(),
         metrics=['accuracy']
     )
-    
+
     history = model.fit(
         train_dataset,
         epochs=5,
@@ -46,6 +54,7 @@ def train_model(model, train_dataset, validation_dataset=None):
     )
     
     return model, history
+
 
 def main():
     # File paths
