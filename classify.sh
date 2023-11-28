@@ -1,4 +1,5 @@
-# Alternative to classify.sh, but useful if you have powershell, run with: & "./classify.ps1"
+#!/bin/bash
+# run with: bash classify.sh this can take a while
 # Most frequent class baseline
 python classify_nb_fc_baseline.py fc dataset/Model/train.data.txt dataset/Model/train.label.txt dataset/Model/test.data.txt False False 4 > Predictions/fc.txt
 

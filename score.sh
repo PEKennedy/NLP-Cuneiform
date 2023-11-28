@@ -1,5 +1,5 @@
-#Alternative to score.sh
-#Score everything, run with: & "./score.ps1"
+#!/bin/bash
+#Score everything, run with: bash score.sh
 python score_baseline.py dataset/Model/test.label.txt Predictions/fc.txt > Results/fc.txt
 python score_baseline.py dataset/Model/test.label.txt Predictions/nb1.txt > Results/nb1.txt
 python score_baseline.py dataset/Model/test.label.txt Predictions/nb2.txt > Results/nb2.txt

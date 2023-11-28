@@ -26,7 +26,7 @@ def main():
     predicted_labels_file = sys.argv[2]
 
     real_labels = read_labels(real_labels_file, encoding='utf-16')
-    predicted_labels = read_labels(predicted_labels_file, encoding='utf-16') #utf-8
+    predicted_labels = read_labels(predicted_labels_file, encoding='utf-8') #utf-16 on windows
 
     accuracy, precision, recall, macro_f1 = calculate_metrics(real_labels, predicted_labels)
 
