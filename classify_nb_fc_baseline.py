@@ -7,7 +7,10 @@ from sklearn.metrics import accuracy_score, classification_report
 import re
 
 # n-gram tokenizer function
-def ngram_tokenizer(text, n=3, startend=False):
+def tokenizer(text, n=1, startend=False, fullWord=False):
+    
+    if fullWord:
+        return full_word_tokenizer(text)
     # Create n-character tokens from each word
     if startend:
         text = "<" + text + ">"
@@ -35,8 +38,8 @@ def main():
     train_text_file = sys.argv[2]
     train_label_file = sys.argv[3]
     test_text_file = sys.argv[4]
-    start_end = sys.argv[5]
-    full_word = sys.argv[6]
+    start_end =  sys.argv[5].lower() == 'true'
+    full_word = sys.argv[6].lower() == 'true'
     
 
     # Read the training cuneiform data
@@ -50,16 +53,19 @@ def main():
     test_texts = read_text_data(test_text_file)
 
     # Vectorize the training and test data using the n-gram tokenizer
-    if full_word:
-        vectorizer = CountVectorizer(analyzer=full_word_tokenizer)
-    else:
-        grams = 3
-        if len(sys.argv) == 8:
-            grams = sys.argv[7]
-        tokenizer = lambda text: ngram_tokenizer(text,grams,start_end)
-        vectorizer = CountVectorizer(analyzer=tokenizer)
+    
+    
+    grams = 3
+    if len(sys.argv) == 8:
+        grams = int(sys.argv[7])
+
+    token_func = lambda text: tokenizer(text,grams,start_end,full_word)
+    vectorizer = CountVectorizer(analyzer=token_func)
+
     X_train = vectorizer.fit_transform(train_texts)
     X_test = vectorizer.transform(test_texts)
+
+
 
     if classification_method == "nb":
         # Naive Bayes classifier
