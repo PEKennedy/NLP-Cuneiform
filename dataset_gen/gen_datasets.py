@@ -11,52 +11,39 @@ sys.stdout.reconfigure(encoding='utf-16') #required on windows machines
 #Generate labels file
 
 def parse_file(file,trainData,trainLabels,devData,devLabels,testData,testLabels):
-    #Add all labels to an array
-    #print(file)
-    #docHeaders = re.finditer(r"NEWDOC (\w+)",file)
-    #print(docHeaders)
+
+    #Originally planned to extract the label from the start of every doc and use that, but for time's sake,
+    # we just the first label we find and discard the rest
     z = re.search(r"NEWDOC\s(\w+)",file)
     label = z.groups()[0]
     g = re.sub(label,"",file)
-    """for header in docHeaders:
-        #print(header)
-        label = header.groups()[0]
-        labels.append(label)
-    print(len(labels))"""
-    #print(labels)
+
     
     docs = re.split("NEWDOC",g)#file) #\s+(\w+)
     print(len(docs))
     for i,doc in enumerate(docs):
-        #no whitespace documents
-        #x = re.sub("OFFICIAL","",doc)
+        #no whitespace documents, these can happen when only annotation and/or words not in the sign list appear
         x = re.sub("[\s\n]+","",doc)
         if x == "":
-            #del labels[i]
             continue
-        #doc = re.sub("OFFICIAL")
-        #distribute the data
+        #distribute the data, write it to the output files
         #0,1 will be training, 2 will be dev, 3 will be test
         category = random.randint(0,3) 
-        #NVM, try modulo
-        #category = i%4
         if category == 0 or category == 1:
             trainData.write("NEWDOC\n")
             trainData.write(doc+"\n")
-            trainLabels.write(label+"\n")#s[i])
+            trainLabels.write(label+"\n")
         elif category == 2:
             devData.write("NEWDOC\n")
             devData.write(doc+"\n")
-            devLabels.write(label+"\n")#s[i])
+            devLabels.write(label+"\n")
         elif category == 3:
             testData.write("NEWDOC\n")
             testData.write(doc+"\n")
-            testLabels.write(label+"\n")#s[i])         
+            testLabels.write(label+"\n")       
     
 
-#Go through the dataset/Unicode folder
-#open file
-#,encoding="utf-8"
+#Go through the dataset/Unicode folder, distribute the documents to training, dev, and testing sets
 if __name__ == "__main__":
     mode = 'w'
     with(
@@ -66,33 +53,12 @@ if __name__ == "__main__":
     open(r"./dataset/Model/dev.label.txt",mode,encoding='utf16') as w,
     open(r"./dataset/Model/test.data.txt",mode,encoding='utf16') as j,
     open(r"./dataset/Model/test.label.txt",mode,encoding='utf16') as k):
-        """trainData = x.read()
-        trainLabels = y.read()
-        devData = z.read()
-        devLabels = w.read()
-        testData = j.read()
-        testLabels = k.read()"""
-        #print(j[0])
+        #Probably the most fragile part of the project, python is picky with the encodings
+        # and syntax
         #note to self, using "" instead of '' breaks open syntax?
         for root, dirs, files in os.walk(r"./dataset/Unicode"):
-            for file in files: #
-                if file.endswith(".txt"):#,"rb"
-                    #with open("./dataset/Unicode/"+file,"rb") as s:
-                        #text = s.read()
-                        #,encoding="utf-8"
-                    #,'r'
-                    #,errors="ignore"
+            for file in files:
+                if file.endswith(".txt"):
                     text = open("./dataset/Unicode/"+file,encoding='utf-16') #as s:
-                        #text = s.read()
-                        #print(text)
                     print(file)
                     parse_file(text.read(),x,y,z,w,j,k)
-                                   #,trainData,trainLabels,devData,devLabels,testData,testLabels)
-                        #text.close()
-
-    """trainData.close()
-    trainLabels.close()
-    devData.close()
-    devLabels.close()
-    testData.close()
-    testLabels.close()"""

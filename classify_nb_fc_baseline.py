@@ -2,6 +2,7 @@ import sys
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.dummy import DummyClassifier
+from sklearn import svm
 from sklearn.metrics import accuracy_score, classification_report
 
 import re
@@ -72,13 +73,19 @@ def main():
         clf = MultinomialNB()
         clf.fit(X_train, train_labels)
         predicted_labels = clf.predict(X_test)
+    elif classification_method == "svm":
+        #this implementation only supports a linear kernel, so could be tweaked in the future
+        # this is fine for a benchmark though
+        clf = svm.SVC() 
+        clf.fit(X_train, train_labels)
+        predicted_labels = clf.predict(X_test)
     elif classification_method == "fc":
         # Most Frequent Class classifier
         clf = DummyClassifier(strategy="most_frequent")
         clf.fit(X_train, train_labels)
         predicted_labels = clf.predict(X_test)
     else:
-        print("Please select a valid classification method: nb or fc")
+        print("Please select a valid classification method: nb, fc, or svm")
         sys.exit(1)
 
     # Print out the predictions
