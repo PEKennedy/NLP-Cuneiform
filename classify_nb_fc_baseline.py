@@ -12,10 +12,6 @@ def ngram_tokenizer(text, n=3, startend=False):
     if startend:
         text = "<" + text + ">"
         text = re.sub(" ","> <",text)
-        #words = text.split()
-        #words = ["<" + word + ">" for word in words]
-        #tokens = [text[i:i+n] for i in range(len(text) - n + 1)]
-    #    text = "<" + text + ">"
     tokens = [text[i:i+n] for i in range(len(text) - n + 1)]
     return tokens
 
