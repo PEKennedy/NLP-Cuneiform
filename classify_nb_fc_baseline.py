@@ -24,7 +24,7 @@ def full_word_tokenizer(text):
 
 # Read data function for the cuneiform file
 def read_text_data(file_path):
-    with open(file_path, encoding='utf16') as file:
+    with open(file_path, encoding='utf-16-le') as file:
         content = file.read()
     # Separate the data based on the 'NEWDOC' separator
     return [part.strip() for part in content.split('NEWDOC') if part.strip()]
@@ -47,7 +47,7 @@ def main():
     train_texts = read_text_data(train_text_file)
 
     # Read the training labels
-    with open(train_label_file, encoding='utf16') as file:
+    with open(train_label_file, encoding='utf-16-le') as file:
         train_labels = [line.strip() for line in file.readlines()]
 
     # Read the test cuneiform data
