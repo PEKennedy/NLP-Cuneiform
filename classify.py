@@ -2,19 +2,20 @@ import tensorflow as tf
 import numpy as np
 import sys
 
+# Reads data from txt file splitting by occurence of NEWDOC
 def read_data(file_path):
     with open(file_path, 'r', encoding='utf-16') as file:
         data = file.read().split('NEWDOC')[1:]
     return data
 
+# Grabs RNN model from model_path
 def load_model_and_encoder(model_path):
     model = tf.keras.models.load_model(model_path)
-    encoder = model.layers[0]
-    return model, encoder
+    return model
 
-
-def predict_and_save_labels(model, preprocessed_test_data, label_mapping, output_file_path):
-    predictions = model.predict(preprocessed_test_data)
+# Makes predictions on test_data and saves predicted labels to output_file_path
+def predict_and_save_labels(model, test_data, label_mapping, output_file_path):
+    predictions = model.predict(test_data)
     predicted_labels = np.argmax(predictions, axis=1)
 
     with open(output_file_path, 'w') as output_file:
@@ -39,12 +40,7 @@ def main():
     test_data = read_data(test_data_path)
 
     # Load model and encoder
-    model, encoder = load_model_and_encoder(model_path)
-
-    # Preprocess test data
-    predict_test_data_np = np.array(test_data)
-    # Preprocess predict_test_data
-    preprocessed_test_data = encoder(test_data).numpy()
+    model = load_model_and_encoder(model_path)
 
     # Define label mapping
     label_mapping = {'ADMIN': 0, 'CONTRACT': 1, 'LEGAL': 2, 'LETTER': 3, 'LEXICAL': 4, 'LITERARY': 5, 'MEDICAL': 6, 'OFFICIAL': 7}

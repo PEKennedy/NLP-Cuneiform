@@ -4,11 +4,23 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.dummy import DummyClassifier
 from sklearn.metrics import accuracy_score, classification_report
 
+import re
+
 # n-gram tokenizer function
-def ngram_tokenizer(text, n=3):
+def ngram_tokenizer(text, n=3, startend=False):
     # Create n-character tokens from each word
+    if startend:
+        text = "<" + text + ">"
+        text = re.sub(" ","> <",text)
+        #words = text.split()
+        #words = ["<" + word + ">" for word in words]
+        #tokens = [text[i:i+n] for i in range(len(text) - n + 1)]
+    #    text = "<" + text + ">"
     tokens = [text[i:i+n] for i in range(len(text) - n + 1)]
     return tokens
+
+def full_word_tokenizer(text):
+    return text.split()
 
 # Read data function for the cuneiform file
 def read_text_data(file_path):
@@ -18,7 +30,7 @@ def read_text_data(file_path):
     return [part.strip() for part in content.split('NEWDOC') if part.strip()]
 
 def main():
-    if len(sys.argv) < 5:
+    if len(sys.argv) < 8:
         print("Please specify the correct number of parameters. See description in code")
         sys.exit(1)
 
@@ -27,6 +39,9 @@ def main():
     train_text_file = sys.argv[2]
     train_label_file = sys.argv[3]
     test_text_file = sys.argv[4]
+    start_end = sys.argv[5]
+    full_word = sys.argv[6]
+    
 
     # Read the training cuneiform data
     train_texts = read_text_data(train_text_file)
@@ -39,7 +54,14 @@ def main():
     test_texts = read_text_data(test_text_file)
 
     # Vectorize the training and test data using the n-gram tokenizer
-    vectorizer = CountVectorizer(analyzer=ngram_tokenizer)
+    if full_word:
+        vectorizer = CountVectorizer(analyzer=full_word_tokenizer)
+    else:
+        grams = 3
+        if len(sys.argv) == 8:
+            grams = sys.argv[7]
+        tokenizer = lambda text: ngram_tokenizer(text,grams,start_end)
+        vectorizer = CountVectorizer(analyzer=tokenizer)
     X_train = vectorizer.fit_transform(train_texts)
     X_test = vectorizer.transform(test_texts)
 

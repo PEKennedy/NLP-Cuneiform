@@ -4,7 +4,7 @@ from sklearn.metrics import accuracy_score, classification_report
 # To call: python scores.py real_label.txt predicted_label.txt
 # Note that real label is in utf16 and predicted label in utf8
 
-def read_labels(file_path, encoding='utf-8'):
+def read_labels(file_path, encoding='utf-16'): #utf-16
     with open(file_path, 'r', encoding=encoding) as file:
         labels = [line.strip() for line in file]
     return labels
@@ -26,7 +26,7 @@ def main():
     predicted_labels_file = sys.argv[2]
 
     real_labels = read_labels(real_labels_file, encoding='utf-16')
-    predicted_labels = read_labels(predicted_labels_file, encoding='utf-8')
+    predicted_labels = read_labels(predicted_labels_file, encoding='utf-16') #utf-8
 
     accuracy, precision, recall, macro_f1 = calculate_metrics(real_labels, predicted_labels)
 
