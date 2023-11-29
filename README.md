@@ -2,14 +2,20 @@
 Uses Natural Language Processing to make a prediction about a cuneiform document
 Made for CS4765 Natural Language Processing
 
-Likely course of action:
-Use ORACC as dataset
-Use Nuolenna github.com/tosaja/Nuolenna to convert xml transliterations to unicode
-Benchmark our classifier with max(P(c))
-Experiment with various different models as time permits: Naive-Bayes, Linear Regression, SVM, KNN,
- some sort of Neural Net, "Random Forest", etc. Write a comparison of methods, how we tweaked things
- 
-Classify based on Legal Genre.
-TODO: 
-- Check ORACC for genre labels.
-- Figure out using Nuolenna and tokenizing to get nice documents out of the dataset.
+## About
+
+- Scripts to compile a custom dataset are located in /dataset_gen, check out its readme for building
+ the dataset from the CDLI corpus and the folder's scripts.
+- A set of documents sorted into training, development, and testing subsets, labelled
+is already made under dataset/Model.zip.
+- /Results contains the results of various models
+- classify.py implements the most frequent class baseline classifier, Naive Bayes, and SVM.
+- /RNNmodel is a keras/tensorflow model built on the dataset
+
+## Usage
+
+- To run the baseline and benchmark classifiers, create a `/Predictions` folder, and use `./classify.sh` then `./score.sh`. This will build and score all the baseline and benchmark classifiers. The Powershell files are equivalent to the bash files.
+- To train or score a specific benchmark or baseline, check classify_benchmark.py for the parameters,
+ and the shell files for examples of the commands themselves.
+- To train the RNN model ....
+- To use the RNN model ....
