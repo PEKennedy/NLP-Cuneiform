@@ -1,4 +1,4 @@
-Accuracy: 0.8264
-Macro Precision: 0.7362
-Macro Recall: 0.7214
-Macro F1 Score: 0.7240
+Accuracy: 0.8267
+Macro Precision: 0.8283
+Macro Recall: 0.8116
+Macro F1 Score: 0.8145
