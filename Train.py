@@ -1,3 +1,6 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # 0: INFO, 1: WARNING, 2: ERROR, 3: FATAL
+
 import tensorflow as tf
 import numpy as np
 import sys
@@ -59,10 +62,10 @@ def train_model(model, train_dataset, validation_dataset):
 
 def main():
     # File paths
-    train_data_path = 'dataset/Model/Model/train.data.txt'
-    train_label_path = 'dataset/Model/Model/train.label.txt'
-    dev_data_path = 'dataset/Model/Model/dev.data.txt'
-    dev_label_path = 'dataset/Model/Model/dev.label.txt'
+    train_data_path = 'dataset/Model/train.data.txt'
+    train_label_path = 'dataset/Model/train.label.txt'
+    dev_data_path = 'dataset/Model/dev.data.txt'
+    dev_label_path = 'dataset/Model/dev.label.txt'
 
     if len(sys.argv) != 2:
         print("Specify the correct number of parameters. See description in code")

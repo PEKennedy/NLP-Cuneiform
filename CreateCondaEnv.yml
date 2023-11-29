@@ -1,0 +1,12 @@
+name: TensorflowEnviroment  # You can change this to your preferred environment name
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.11.5
+  - tensorflow=2.12.0
+  - keras=2.12.0
+  - expat
+  - scikit-learn= 1.3.2
+  - tensorflow-hub
+  # Add any other dependencies you may need for your project
