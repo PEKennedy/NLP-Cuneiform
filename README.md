@@ -34,4 +34,4 @@ is already made under dataset/Model.zip.
 - To classify with RNN model:
     - python classify_RNN.py RNNname RNN_predictions.txt
 - To score RNN
-    - python score_baseline.py dataset/Model/test.label.txt RNN_predictions.txt
+    - python score.py dataset/Model/test.label.txt RNN_predictions.txt
