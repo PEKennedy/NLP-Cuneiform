@@ -29,8 +29,8 @@ is already made under dataset/Model.zip.
 - To train or score a specific benchmark or baseline, check classify_benchmark.py for the parameters,
  and the shell files for examples of the commands themselves.
 - To train the RNN model:
-    - python Train.py RNNname
+    - python Train_RNN.py RNNname
 - To classify with RNN model:
-    - python classify.py RNNname RNN_predictions.txt
+    - python classify_RNN.py RNNname RNN_predictions.txt
 - To score RNN
     - python score_baseline.py dataset/Model/test.label.txt RNN_predictions.txt
