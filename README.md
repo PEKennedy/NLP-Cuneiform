@@ -25,6 +25,7 @@ is already made under dataset/Model.zip.
     - docker run -p 8888:8888 imagename
 
 ## Usage
+- Prior to running the dataset must be unzipped, its located in the dataset folder, and is called Model.zip
 - To run the baseline and benchmark classifiers, create a `/Predictions` folder, and use `./classify.sh` then `./score.sh`. This will build and score all the baseline and benchmark classifiers. The Powershell files are equivalent to the bash files.
 - To train or score a specific benchmark or baseline, check classify_benchmark.py for the parameters,
  and the shell files for examples of the commands themselves.
